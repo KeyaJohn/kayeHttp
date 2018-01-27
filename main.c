@@ -8,6 +8,10 @@
 #include "server.h"
 
 
+void deal_child(int sig)
+{
+    wait(NULL);
+}
 int main(int argc,char* argv[])
 {
     
@@ -18,14 +22,30 @@ int main(int argc,char* argv[])
         exit(EXIT_FAILURE);
     }
     
+    int on;
+    if( (setsockopt(sockfd,SOL_SOCKET,SO_REUSEADDR,&on,sizeof(on))) < 0 )
+    {
+        perror( " setsockopt err\n" );
+        exit(EXIT_FAILURE);
+    }
+    
+    signal(SIGCLD,deal_child);
     while( 1 )
     {
-        printf("等待客户端进行连接!\n");
-        
         int newfd = accept_sock(sockfd);
         
-        deal_request(sockfd);
-        
+        pid_t pid;
+        if( (pid = fork()) < 0)
+        {
+            perror("fork err\n");
+            exit(EXIT_FAILURE);
+        }
+        else if( pid == 0  )
+        {
+            deal_request(newfd);
+            close(newfd);
+            exit(1);
+        }
     }
     return 0;
 }

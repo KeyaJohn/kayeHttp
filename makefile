@@ -1,7 +1,9 @@
-server:server.o 
-	gcc -o $@  $^ 
+main:main.o server.o  
+	gcc -o $@ $^ -g -pthread
 
-server.o:server.c server.h
-	gcc -c   server.c server.h 
+main.o:main.c
+	gcc -c main.c
+server.o:server.c 
+	gcc -c server.c  
 clean:
-	rm -rf server.o sercer 
+	rm -rf server.o server main main.o 

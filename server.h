@@ -13,15 +13,22 @@
 #include <string.h>
 #include <unistd.h>
 #include <fcntl.h>
+#include <signal.h>
 #include <pthread.h>
+#include <sys/wait.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <sys/socket.h>
-
+#include <errno.h>
+#define SIZE 255
 #define LINK_NUM  5
-#define BUFFZSIZE 1024
-#define SERVER_PORT  80
+#define BUFFSIZE 1024
+#define SERVER_PORT  5500
 #define SERVER_IP "192.168.93.128"
 int  creat_sock();
 
+int accept_sock(int fd);
+
+void deal_request(int fd);
+void get_method_url(int fd,char url[],char method[],char buff[]);
 #endif
