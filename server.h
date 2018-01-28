@@ -25,6 +25,9 @@
 #define BUFFSIZE 1024
 #define SERVER_PORT  5500
 #define SERVER_IP "192.168.93.128"
+#define STDIN 0
+#define STDOUT 1
+#define STDERR 2
 int  creat_sock();
 
 int accept_sock(int fd);

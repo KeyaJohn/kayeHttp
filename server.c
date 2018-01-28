@@ -75,7 +75,7 @@ void get_str(int sockfd ,char buff[])
 //   printf("buff:%s ;length :%d\n",buff,(int )strlen(buff));
 }
 
-void get_url_method(int sockfd,char url[],char method[],char buff[])
+void get_url_method_parm(int sockfd,char url[],char method[],char parm[],char buff[])
 {
     int i=0,j=0;
     char *p = buff;
@@ -87,15 +87,29 @@ void get_url_method(int sockfd,char url[],char method[],char buff[])
     }
     method[i] = '\0';
     
+    i = 0,j = 0;
     p++;
-    while( *p != ' ' )
+    while( *p != ' ')
     {
-        url[j++] = *p;
+        if( *p == '?' )
+        {
+            p ++;
+            while( *p != ' ')
+            {
+                parm[j++] = *p;
+                p++;
+            }
+            break;
+        }
+        url[i++] = *p;
         p++;
     }
-    url[j] = '\0';
+
+    url[i] = '\0';
+    parm[j] = '\0';
     printf( "method:%s length :%d\n" ,method,(int )strlen(method));
     printf( "url:%s length :%d\n" ,url,(int )strlen(url));
+    printf( "parm:%s length :%d\n" ,parm,(int )strlen(parm));
 }
 
 void respond_head(int sockfd)
@@ -221,33 +235,153 @@ void respond_GET(int fd,char url[])
     }
 
 }
+
+void exec_post(int sockfd ,char url[])
+{
+    
+}
+
+void get_len(int sockfd,int *len)
+{
+    char buff[SIZE];
+    memset(buff,'\0',SIZE);
+    while ( 1 )
+    {
+        get_str(sockfd,buff);
+        printf("%s",buff);
+        memset(buff,'\0',SIZE);
+    }
+}
+void exec_cgi(int sockfd,char method[],char url[],char parm[],int len)
+{
+    int pipe1[2],pipe2[2];
+    
+    char path[SIZE] = "/home/kaye/project/kayeHttp/httpdoc";
+    strcat(path,url);
+    puts(path);
+    
+  //  recv(sockfd,path,len,0);
+   // printf("%s",path);
+
+    //execl(path,parm,NULL);
+    if( pipe( pipe1 ) < -1 )
+    {
+        perror("pipe1 err\n");
+        return ;
+    }
+    
+    if( pipe( pipe2 ) < -1 )
+    {
+        perror("pipe2 err\n");
+        return ;
+    }
+    
+/*    char buff[SIZE];
+    sprintf(buff,"HTTP/1.0 200 0K\r\n");
+    send(sockfd,buff,strlen(buff),0);
+    sprintf(buff,"Contenttype:text/plain\n\n");
+    send(sockfd,buff,strlen(buff),0);
+*/
+    respond_head(sockfd);
+    pid_t pid;
+    if( (pid = fork()) < 0 )
+    {
+        perror("fork err\n");
+        return ;
+    }
+    
+    if(  pid == 0 )
+    {
+        dup2(pipe1[0],STDIN);
+        dup2(pipe2[1],STDOUT);
+        close(pipe1[1]);
+        close(pipe2[0]);
+
+
+        char meth_env[255];
+        char query_env[255];
+        char length_env[255];
+
+        sprintf(meth_env, "REQUEST_METHOD=%s", method);
+        putenv(meth_env);
+        {   
+            sprintf(length_env, "CONTENT_LENGTH=%d", len);
+            putenv(length_env);
+        }
+
+        execl(path,parm,NULL);
+    }
+    else 
+    {
+        close(pipe1[0]);
+        close(pipe2[1]);
+        
+        int i = 0;
+        char c;
+        for(;i<len;i++)
+        {
+            int ret = recv(sockfd,&c,1,0);
+            if( ret > 0  )
+            {
+                write(pipe1[1],&c,1);
+            }
+        }
+
+        while( read(pipe2[0],&c,1)>0 )
+        {
+            send(sockfd,&c,1,0);
+        }
+        waitpid(pid,NULL,0);
+    }
+}
 void deal_request(int fd)
 {
     char method[SIZE] ;
     char url[SIZE];
+    int len;
     char buff[BUFFSIZE];
+    char parm[SIZE];
     char head[BUFFSIZE];
+    char length[SIZE];
     memset(method,'\0',SIZE);
+    memset(parm, '\0',SIZE);
+    memset(length,'\0',SIZE);
     memset(url,'\0',SIZE);
     memset(buff,'\0',SIZE);
     memset(head,'\0',SIZE);
     get_str(fd,buff);
-    
+     
     while(strncmp(head,"\r\n",2) != 0)
     {
         get_str(fd,head) ;
+        if( strncmp(head,"Content-Length:",15) == 0 )
+        {
+            char *p = head + 16;
+            char num[16] ;
+            int i = 0;
+            while ( *p != '\r' )
+            {
+                num[i++] = *p;
+                p++;
+            }
+            num[i] = '\0';
+            printf("num: %s\n",num);
+            len = atoi(num);
+            printf("len: %d\n",len);
+        }
+        printf("%s",head);
     }
     
     
-    get_url_method(fd,url,method,buff);
+    get_url_method_parm(fd,url,method,parm,buff);
     
-    if( strncmp(method,"GET",3) == 0 )
+    if( (strncmp(method,"GET",3) == 0 ) && (strlen(parm) == 0) )
     {
         respond_GET(fd,url);
     }
-    else if( strncmp(method,"POST",3) == 0 )
+    else 
     {
+        exec_cgi(fd,method,url,parm,len);
         
     }
-   
 }
