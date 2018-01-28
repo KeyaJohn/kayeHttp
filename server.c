@@ -241,54 +241,55 @@ void exec_post(int sockfd ,char url[])
     
 }
 
-void get_len(int sockfd,int *len)
+void print_file(int sockfd,char path[])
 {
     char buff[SIZE];
-    memset(buff,'\0',SIZE);
-    while ( 1 )
+    if( access(path,F_OK) != 0 )
     {
-        get_str(sockfd,buff);
-        printf("%s",buff);
-        memset(buff,'\0',SIZE);
+        respond_err(sockfd);
     }
+    FILE *fp = NULL;
+    if( (fp = fopen(path,"r"))  == NULL )
+    {
+        printf("open file fail\n");
+        return ;
+    }
+    while ( fgets(buff,SIZE,fp) != NULL )
+    {
+        printf("%s",buff);
+    }
+
 }
 void exec_cgi(int sockfd,char method[],char url[],char parm[],int len)
 {
-    int pipe1[2],pipe2[2];
-    
-    char path[SIZE] = "/home/kaye/project/kayeHttp/httpdoc";
-    strcat(path,url);
+    int pipe1[2],pipe2[2];  
+    char block[SIZE] ;
+    memset(block,'\0',SIZE);
+    char path[SIZE] = "/home/kaye/project/kayeHttp/httpdoc/";
     puts(path);
-    
-  //  recv(sockfd,path,len,0);
-   // printf("%s",path);
-
-    //execl(path,parm,NULL);
+     
     if( pipe( pipe1 ) < -1 )
     {
         perror("pipe1 err\n");
         return ;
     }
-    
+     
     if( pipe( pipe2 ) < -1 )
     {
         perror("pipe2 err\n");
         return ;
     }
     
-/*    char buff[SIZE];
-    sprintf(buff,"HTTP/1.0 200 0K\r\n");
-    send(sockfd,buff,strlen(buff),0);
-    sprintf(buff,"Contenttype:text/plain\n\n");
-    send(sockfd,buff,strlen(buff),0);
-*/
+     
     respond_head(sockfd);
+    
     pid_t pid;
     if( (pid = fork()) < 0 )
     {
         perror("fork err\n");
         return ;
     }
+     
     
     if(  pid == 0 )
     {
@@ -301,15 +302,27 @@ void exec_cgi(int sockfd,char method[],char url[],char parm[],int len)
         char meth_env[255];
         char query_env[255];
         char length_env[255];
-
+        
         sprintf(meth_env, "REQUEST_METHOD=%s", method);
         putenv(meth_env);
         {   
             sprintf(length_env, "CONTENT_LENGTH=%d", len);
             putenv(length_env);
         }
-
-        execl(path,parm,NULL);
+        
+         int ret = read(STDIN,block,len); 
+        if( ret < 0)
+        {
+            return ;
+        }
+        
+        char *p = block + 6;
+        
+        strcat(path,p);
+       // printf("%s\n",path) ;
+    
+        print_file(sockfd,path);
+    //    execl(path,parm,NULL);
     }
     else 
     {
