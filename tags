@@ -1,0 +1,49 @@
+!_TAG_FILE_FORMAT	2	/extended format; --format=1 will not append ;" to lines/
+!_TAG_FILE_SORTED	1	/0=unsorted, 1=sorted, 2=foldcase/
+!_TAG_PROGRAM_AUTHOR	Darren Hiebert	/dhiebert@users.sourceforge.net/
+!_TAG_PROGRAM_NAME	Exuberant Ctags	//
+!_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
+!_TAG_PROGRAM_VERSION	5.9~svn20110310	//
+BIN	src/makefile	/^BIN=.\/kayehttp$/;"	m
+BUFFSIZE	src/server.h	32;"	d
+DEBUG	src/log.h	18;"	d
+ERROR	src/log.h	16;"	d
+INFO	src/log.h	19;"	d
+LINK_NUM	src/server.h	31;"	d
+MAX_EPOLL	src/server.h	26;"	d
+MAX_EPOLL	src/server.h	29;"	d
+OBJ	src/makefile	/^OBJ=$(patsubst %.c,%.o,$(SRC))$/;"	m
+SERVER_IP	src/server.h	34;"	d
+SERVER_PORT	src/server.h	33;"	d
+SIZE	src/server.h	30;"	d
+SRC	src/makefile	/^SRC=$(wildcard .\/*.c ;)$/;"	m
+STDERR	src/server.h	38;"	d
+STDIN	src/server.h	36;"	d
+STDOUT	src/server.h	37;"	d
+WARN	src/log.h	17;"	d
+_LOG_H	src/log.h	9;"	d
+_SERVER_H	src/server.h	9;"	d
+accept_sock	src/accept_sock.c	/^int accept_sock(int fd)$/;"	f
+creat_log	src/log.c	/^zlog_category_t *creat_log()$/;"	f
+creat_sock	src/creat_sock.c	/^int creat_sock()$/;"	f
+deal_child	src/main.c	/^void deal_child(int sig)$/;"	f
+deal_request	src/deal_request.c	/^void deal_request(int fd)$/;"	f
+deal_request	src/httpdoc/deal_request.c	/^void deal_request(int fd)$/;"	f
+del_log	src/log.c	/^void del_log(zlog_category_t *plog)$/;"	f
+exec_cgi	src/exec_cgi.c	/^void exec_cgi(int sockfd,char method[],char url[],char parm[],int len)$/;"	f
+exit_is_file	src/respond_get.c	/^int exit_is_file(char url[])$/;"	f
+get_str	src/get_url_method_parm.c	/^void get_str(int sockfd ,char buff[])$/;"	f
+get_url_method_parm	src/get_url_method_parm.c	/^void get_url_method_parm(int sockfd,char url[],char method[],char parm[],char buff[])$/;"	f
+main	src/main.c	/^int main(int argc,char* argv[])$/;"	f
+main_epoll	src/main_epoll.c	/^int main_epoll(int sockfd)$/;"	f
+main_log	src/log.c	/^zlog_category_t * main_log = NULL;$/;"	v
+not_found	src/respond_get.c	/^void not_found(int sockfd)$/;"	f
+print_file	src/print_file.c	/^void print_file(int sockfd,char path[])$/;"	f
+respond	src/respond_get.c	/^void respond(int sockfd ,char url[])$/;"	f
+respond_GET	src/respond_get.c	/^void respond_GET(int fd,char url[])$/;"	f
+respond_data	src/respond_get.c	/^void respond_data(int sockfd,char *path)$/;"	f
+respond_err	src/respond_get.c	/^void respond_err( int sockfd )$/;"	f
+respond_head	src/respond_head.c	/^void respond_head(int sockfd)$/;"	f
+send_data	src/send_data.c	/^void send_data(int sockfd,char buff[],int len)$/;"	f
+setnoblocking	src/main.c	/^void setnoblocking(int fd)$/;"	f
+write_log	src/log.c	/^int write_log(zlog_category_t * plog,char *str,int flag)$/;"	f
